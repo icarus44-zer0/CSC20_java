@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - MultiArray",
+            "request": "launch",
+            "mainClass": "MultiArray",
+            "projectName": "MultiArray_3a479c31"
+        }
+    ]
+}
