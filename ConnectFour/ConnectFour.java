@@ -1,305 +1,282 @@
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Scanner;
-
+/**
+ * A Connect Four Object
+ * 
+ * A <code>ConnectFour</code> object contains the paraments 
+ * and functionality of a connect four gameboard and the players
+ * who will use the gameboard
+ * 
+ * @author  Joshua Poe
+ * @version 1.3.2 10/16/19
+ */
 
 public class ConnectFour{
-   private char[][] charBoard;
+   private char[][] board;
    private int row;
    private int col;
 
+/**
+ * Default size of rows 
+*/
    public static final int DEFAULT_ROW_SIZE = 6;
+
+/**
+ * Default size of columns 
+*/
    public static final int DEFAULT_COL_SIZE = 7;
 
+/**
+ * Default row divider charecter 
+*/
    public static final String ROW_DIVIDER = "|"; 
-   public static final String COL_DIVIDER = "-+"; 
+
+/**
+ * Default column divider charecter 
+*/
+   public static final String COL_DIVIDER = "-+";
+
+/**
+ * Default column terminator charecter 
+*/
    public static final String COL_TERMINATOR = "-";
+
+/**
+ * Default new line charecter 
+*/
    public static final String NEW_LINE = "\n";
 
-   public static final char _X = 'X';
-   public static final char _O = 'O';
 
-
-    // constructs a new board of defualt size row = 6, col = 7
+/**
+ * Defualt ConnectFour Constructor 
+ * 
+ * Constructs a new board of defualt size row = 6, col = 7
+ * intitalizes P1 and P2 to defualt values 
+*/
    public ConnectFour(){
-      this.row = 6;
-      this.col = 7;
-      this.charBoard = new char[DEFAULT_ROW_SIZE][DEFAULT_COL_SIZE];
-      
+      row = 6;
+      col = 7;
+      board = new char[DEFAULT_ROW_SIZE][DEFAULT_COL_SIZE];
+   
+   
       for(int i = 0 ; i < 6; i ++){
          for(int j = 0 ; j < 7; j ++)
-            this.charBoard[i][j] = ' ';
+            board[i][j] = ' ';
       }
    }
 
+/**
+ * ConnectFour Constructor 
+ *
+ * Constructs a new board of a specified size
+ * intitalizes P1 and P2 to defualt values 
+ * 
+ * @param a the number of rows the gameboard will have
+ * @param b the number of columns the gameboard will have
+ * @return a new gamboard of the delcared size 
+*/
    public ConnectFour(int a, int b){
-      if ( a < 4 || b < 3)
-         throw new IllegalArgumentException();                
-      this.row = a;
-      this.col = b;
-      this.charBoard = new char[a][b];
-      
-       for(int i = 0 ; i < a; i ++){
-         for(int j = 0 ; j < b; j ++)
-            this.charBoard[i][j] = ' ';
-      }
-   }
-
-   public char get(int r, int c){
-      return charBoard[r][c];
-   }
-    
-   public void dropCol(int c, char ch){
-      if( c > getRowCount())
-         throw new IndexOutOfBoundsException();
-        
-      if (ch == _X){
-         for(int i = getRowCount() - 1 ; i >= 0; i--){
-            if (get(i,c) != 'X' && get(i,c) != 'O'){
-               charBoard[i][c] = ch; 
-               break;
-            }  
-         }
-      }
+                  
+      checkDimensions(a,b);
    
-      if (ch == _O){
-         for(int i = getRowCount() - 1 ; i >= 0; i--){
-            if (get(i,c) != 'X' && get(i,c) != 'O'){
-               charBoard[i][c] = ch; 
-               break;
-            }  
-         }
+      row = a;
+      col = b;
+      board = new char[a][b];
+   
+      for(int i = 0 ; i < a; i ++){
+         for(int j = 0 ; j < b; j ++)
+            board[i][j] = ' ';
       }
    }
 
+
+/**
+ * Gets the charecter at a specified location on the gameboard 
+ * 
+ * @param r the row of the specified element
+ * @param c the column the specified element
+ * @return the charecter at the specified location 
+*/
+   public char get(int r, int c){
+     
+     // checkRow(r);
+      checkCol(c);
+   
+      return board[r][c];
+   }
+
+/**
+ * Adds a new charecter to the gameboard to represent a players move
+ * in the next available location for the user specified column
+ * 
+ * @param c the column where the next move will occur 
+ * @param ch the current players Symbol to be stored on the gameboard
+ * @exception IndexOutOfBoundsException if the user enters a column not on the board
+*/
+   public void dropCol(int c, char ch){
+      checkCol(c);
+      checkColFull(c);
+   
+      for(int i = getRowCount() - 1 ; i >= 0; i--){
+         if (get(i,c) == ' ' ){
+            board[i][c] = ch;
+            break;
+         }  
+      }
+   }
+
+/**
+ * Gets the number of rows that are in the gamboard array
+ * 
+ * @return the intiger value stored in row
+*/
    public int getRowCount(){
       return row;
    }
 
+/**
+ * Gets the number of columns that are in the gamboard array
+ * 
+ * @return the intiger value stored in col
+*/
    public int getColCount(){
       return col;
    }
 
-public char winner(){
-   char win = ' ';
-   if (win != xWin())
-      win = xWin();
-   else if (win != oWin())
-      win = oWin();
-   return win;
-}
-
-   public char xWin(){
-       char[][] temp = charBoard;
-       
-      for (int i = temp.length - 1; i >= 0; i--) {
-         for (int j = temp[0].length -1  ; j >= 0; j--) {
-            if(
-               (i-3) >= 0
-            &&  temp[i-0][j] == _X 
-            &&  temp[i-1][j] == _X
-            &&  temp[i-2][j] == _X
-            &&  temp[i-3][j] == _X
-              )
-                return _X;
-            
-            else if(
-                (j-3) >= 0
-            &&  temp[i][j-0] == _X 
-            &&  temp[i][j-1] == _X
-            &&  temp[i][j-2] == _X
-            &&  temp[i][j-3] == _X
-              )
-                return _X;
-
-            else if(
-               (i-3) >= 0
-            && (j-3) >= 0   
-            &&  temp[i-0][j-0] == _X 
-            &&  temp[i-1][j-1] == _X
-            &&  temp[i-2][j-2] == _X
-            &&  temp[i-3][j-3] == _X
-            )
-               return _X;
-            
-            else if(
-               (i-3) >= 0
-            && (j+3) < temp[0].length   
-            &&  temp[i-0][j-0] == _X 
-            &&  temp[i-1][j+1] == _X
-            &&  temp[i-2][j+2] == _X
-            &&  temp[i-3][j+3] == _X
-            )
-               return _X;
-         }
-      }
-      char noWinner = ' ';
-      return noWinner;
-   }
-
-   public char oWin(){
-      char[][] temp = charBoard;
-       
-      for (int i = temp.length - 1; i >= 0; i--) {
-         for (int j = temp[0].length -1  ; j >= 0; j--) {
-            if(
-               (i-3) >= 0
-            &&  temp[i-0][j] == _O 
-            &&  temp[i-1][j] == _O 
-            &&  temp[i-2][j] == _O 
-            &&  temp[i-3][j] == _O 
-              )
-                return _O ;
-            
-            else if(
-                (j-3) >= 0
-            &&  temp[i][j-0] == _O 
-            &&  temp[i][j-1] == _O 
-            &&  temp[i][j-2] == _O 
-            &&  temp[i][j-3] == _O 
-              )
-                return _O;
-
-            else if(
-               (i-3) >= 0
-            && (j-3) >= 0   
-            &&  temp[i-0][j-0] == _O  
-            &&  temp[i-1][j-1] == _O 
-            &&  temp[i-2][j-2] == _O 
-            &&  temp[i-3][j-3] == _O 
-            )
-               return _O ;
-            
-            else if(
-               (i-3) >= 0
-            && (j+3) < temp[0].length   
-            &&  temp[i-0][j-0] == _O  
-            &&  temp[i-1][j+1] == _O 
-            &&  temp[i-2][j+2] == _O 
-            &&  temp[i-3][j+3] == _O 
-            )
-               return _O ;
-         }
-      }
-      char noWinner = ' ';
-      return noWinner;
-   }
-   
-   //A WAY TO DETERMINE THINGS THAT ARENT FACTS
-   public char winnerOld(){
+/**
+ * Determins which player has won the game
+ * 
+ * @return the charecter value of the winning player 
+ * @return empty if no winner declared 
+*/
+   public char winner(){
       char win = ' ';
-      if (win != vertWin()){
-         win = vertWin();
-         System.out.println("vert");
+      if (win != verticalWin()){
+         win = verticalWin();
+         return win;
       }
-      else if (win != horizWin()){
-         System.out.println("Horz");
-         win = horizWin();
+      else if(win != horizontalWin()){
+         win = horizontalWin();
+         return win;
       }
-       else if (win != diagWin()){
-         System.out.println("diag");
-         win = diagWin();
+      else if(win != diag1Win()){
+         win = diag1Win();
+         return win;
       }
-      return win;
+      else if(win != diag2Win()){
+         win = diag2Win();
+         return win;
+      }
+      else
+         return win; 
    }
    
-    // checks verticle wins for both _X and _O
-   public char vertWin(){
-      int x = 0;
-      int o = 0;
-    
-      for (int i = 1; i < getRowCount(); i++) {
-         for (int j = 0; j < getColCount(); j++) {
-            char a = get(i, j);
-            char b = get((i - 1), j);
-            if (a == _X && b == _X) {
-               x++;
-                if (x >= 3) {
-                  return _X;
+/**
+ * 
+ * 
+*/
+   public char verticalWin(){
+      char fail = ' ';
+   
+         for (int j = board[0].length -1  ; j >= 0; j--) {
+            for (int i = board.length - 1; i >= 0; i--) {
+               if((i-3) >= 0 && board[i][j] != ' '){ 
+                  if(board[i][j] == board[i-1][j] && board[i][j] != ' '){
+                     if(board[i-1][j] == board[i-2][j] && board[i][j] != ' '){
+                        if(board[i-2][j] == board[i-3][j] && board[i][j] != ' '){
+                              return board[i][j];
+                        }
+                     }
+                  }
                }
-            } 
-            else if (a == _O && b == _O)
-               o++;
-               if (o >= 3) {
-                  return _O;
-               }
-            else {
-               x = 0;
-               o = 0;
             }
-         }
-      }
-   
-      char noWinner = ' ';
-      return noWinner;
+         } 
+      return fail;      
    }
-
-    // checks horizontal wins for both _X and _O
-   public char horizWin(){
-      int x = 0;
-      int o = 0;
+   
+/**
+ * 
+ * 
+*/
+   public char horizontalWin(){
+      char fail = ' '; 
       
-      for (int i = 0; i < getRowCount(); i++) {
-         for (int j = 1; j < getColCount(); j++) {
-            char a = get(i, j);
-            char b = get((i), j - 1);
-            if (a == _X && b == _X) {
-               x++;
-               if (x >= 3) 
-                  return _X;
-            } 
-            else if (a == _O && b == _O){
-               o++;
-               if (o >= 3) 
-                  return _O;
-            }
-            else {
-               x = 0;
-               o = 0;
+      for (int i = board.length - 1; i >= 0; i--) {
+         for (int j = board[0].length -1  ; j >= 0; j--) {           
+            if((j-3) >= 0 && board[i][j] != ' '){
+               if(board[i][j] == board[i][j-1] && board[i][j] != ' '){
+                  if(board[i][j-1] == board[i][j-2] && board[i][j] != ' '){
+                     if(board[i][j-2] == board[i][j-3] && board[i][j] != ' '){
+                           return board[i][j];
+                     }
+                  }
+               }
             }
          }
       }
+      return fail;      
+   } 
    
-      char noWinner = ' ';
-      return noWinner;
-   }
-
-    // checks diagonal wins for both _X and _O
-   public char diagWin(){
-      int x = 0;
-      int o = 0;
+/**
+ * 
+ * 
+*/
+   public char diag1Win(){
+      char fail = ' ';
    
-      for (int i = 1; i < getRowCount()-1; i++){
-         for (int j = 1; j < getColCount()-1; j++){
-                
-            char a = get(i, j);
-            char b = get((i+1),(j+1));
-            if(a == _X && b == _X){
-               x++;
-               if (x >= 3) 
-                  return _X;
-            }
-            else if(a == _O && b == _O){
-               o++;
-               if (o >= 3) 
-                  return _O;
+      for (int i = board.length - 1; i >= 0; i--) {
+         for (int j = board[0].length -1  ; j >= 0; j--) {           
+            if((i-3) >= 0 && (j-3) >= 0 && board[i][j] != ' '){
+               if(board[i][j] == board[i-1][j-1] && board[i][j] != ' '){
+                  if(board[i-1][j-1] == board[i-2][j-2] && board[i][j] != ' '){
+                     if(board[i-2][j-2] == board[i-3][j-3] && board[i][j] != ' '){
+                           return board[i][j];
+                     }
+                  }
+               }
             }
          }
       }
-      char noWinner = ' ';
-      return noWinner;
+      return fail;      
    }
+   
+/**
+ * 
+ * 
+*/  
+   public char diag2Win(){
+      char fail = ' ';
+      
+      for (int i = board.length - 1; i >= 0; i--) {
+         for (int j = board[0].length -1  ; j >= 0; j--) {           
+            if((i-3) >= 0 && (j+3) < board[0].length && board[i][j] != ' '){
+               if(board[i][j] == board[i-1][j+1] && board[i][j] != ' '){
+                  if(board[i-1][j+1] == board[i-2][j+2] && board[i][j] != ' '){
+                     if(board[i-2][j+2] == board[i-3][j+3] && board[i][j] != ' '){
+                        return board[i][j];
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return fail;      
+   }  
 
+/**
+ * Prints the entire array of chars to the screen 
+ * along with the specified game board parameters 
+ * 
+ * @return the string equivlent of the board and the char array together
+*/
    public String toString() {
       String racs = "";
    
       for (int i=0; i < getRowCount(); i++){
          for (int j=0; j < getColCount(); j++){
             racs = racs.concat(String.valueOf(get(i, j)));
-               if (j< getColCount()-1)
-                  racs = racs.concat(ROW_DIVIDER);
+            if (j< getColCount()-1)
+               racs = racs.concat(ROW_DIVIDER);
          }
-
+      
          racs = racs.concat(NEW_LINE);
          for (int k=0; k < getColCount()-1; k++){
             racs= racs.concat(COL_DIVIDER);
@@ -310,41 +287,54 @@ public char winner(){
       }
       return racs;
    }
-
-    public static void main(String[] args) {
-       int p1 = 0;
-       int p2 = 0;
-
-       Scanner sc = new Scanner(System.in);
-       ConnectFour game = new ConnectFour(10,10); 
-       System.out.println(game.toString());
    
-      while(true){
-         //player 1s turn
-         System.out.println("PLAYER 1: Choose 1-" + game.getColCount());
-         p1 = sc.nextInt() - 1;
-         game.dropCol(p1, _X);
-            if (game.winner() != ' '){
-            
-               System.out.println(game.toString());
-               System.out.println(game.winner()+"'s win!");
-               break;
-            }
-         System.out.println(game.toString());
-
-         //player 2s turn
-         System.out.println("PLAYER 2: Choose 1-" + game.getColCount());
-         p2 = sc.nextInt() - 1;
-         game.dropCol(p2, _O);
-      
-            if (game.winner() != ' '){
-           
-               System.out.println(game.toString());
-               System.out.println(game.winner()+"'s win!");
-               break;
-            }
-         System.out.println(game.toString());
-      }     
-      sc.close();
+/**
+ *
+ *
+*/
+   public void checkDimensions(int r, int c){
+      if (r < 4 || c < 3)
+         throw new IllegalArgumentException(); 
    }
+   
+/**
+ *
+ *
+*/
+   public void checkRow(int r){ 
+   
+      if( r > getRowCount() - 1){
+         throw new IndexOutOfBoundsException("here");
+      }
+      
+      else if( r < 0){
+         throw new IndexOutOfBoundsException("here 2");
+      }
+    
+   }
+
+/**
+ *
+ *
+*/
+   public void checkCol(int c)
+   {
+      if( c > getColCount() - 1){
+         throw new IndexOutOfBoundsException();
+      }
+       
+      else if( c < 0){
+         throw new IndexOutOfBoundsException();
+      }
+   }
+
+/**
+ *
+ *
+*/
+   public void checkColFull(int c){
+      if(board[0][c] != ' ')
+         throw new IndexOutOfBoundsException();
+   }
+
 }
